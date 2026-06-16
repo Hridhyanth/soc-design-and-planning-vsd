@@ -360,3 +360,34 @@ Common violations to look out for:
 | **Sky130 PDK** | SkyWater 130nm open-source PDK |
 
 ---
+
+## Key Learnings
+
+- Open-source toolchains can genuinely replace commercial EDA flows. This workshop showed that an entirely open-source stack — OpenLANE, Magic, ngspice, OpenSTA,
+and the Sky130 PDK — can carry a design all the way from RTL to a finished GDSII layout. Going in, I assumed professional chip design tools were locked behind
+expensive licenses, but watching every stage run on free, community-maintained software changed how I think about access to this field.
+
+- The die is more than just "the chip." Understanding how the package, die, core, and pads relate to each other gave me a much clearer mental model of what's
+physically happening inside any embedded board I look at. Foundry IPs, macros, and the core/pad boundary stopped being abstract textbook terms and started feeling
+like deliberate engineering decisions I could actually point to.
+
+- Floorplanning decisions ripple through the entire flow. Choosing a utilisation factor or aspect ratio isn't a cosmetic step — it directly affects how much room
+is left for buffers, how congested routing gets later, and whether the design closes on timing at all. Seeing pre-placed cells, decoupling capacitors, and power
+mesh/ring structures laid out made it clear that many downstream problems are either prevented or created right here.
+
+- Library cell characterization connects transistor-level behavior to digital signoff. Writing a SPICE deck, extracting a netlist from a Magic layout, and
+measuring rise time, fall time, and propagation delay in ngspice showed me exactly how a "simple" standard cell's analog behavior gets distilled into the timing
+numbers that STA tools depend on later. It closed a gap between transistor-level intuition and digital-level abstraction that lecture slides alone hadn't.
+
+- Timing closure is an ongoing process, not a single checkpoint. Concepts like setup slack, OCV derating, clock uncertainty, and CRPR made it clear that "meeting
+timing" has to be re-verified after every major change — especially after clock tree synthesis inserts new buffers that shift both hold and setup paths. This made
+it obvious why STA gets run repeatedly throughout a real flow rather than just once at the end.
+
+- Routing has to satisfy geometry and electrical constraints at the same time. Watching global routing hand off to detailed routing, and then seeing parasitics 
+get extracted into a SPEF file for final sign-off STA, showed that a layout being "DRC clean" and a layout being "timing clean" are two separate hurdles that both
+need clearing. Tracking down spacing and antenna violations was one of the most concrete, satisfying parts of the whole flow.
+
+- Documenting the workflow taught me as much as running the labs did. Writing up each day's concepts in my own words, instead of just executing commands and
+moving on, forced me to understand why each step mattered rather than just how to perform it. It surfaced gaps in my understanding that I likely wouldn't have
+noticed otherwise, and it's a habit I plan to keep for future projects.
+
