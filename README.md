@@ -230,3 +230,21 @@ From the waveform, measure rise time, fall time, and propagation delay values.
 20% of output = 660 mV
 
 80% of output = 2.64 V
+
+## Day 4 — Pre-Layout Timing Analysis and Clock Tree Synthesis
+
+#### LEF Requirements for Custom Standard Cells
+
+Before OpenLANE can use a custom cell, it needs a LEF file spelling out the cell's physical outline, where its pins sit, and which metal layers it occupies. Two rules govern valid port placement:
+
+- Every input and output port has to sit exactly where a horizontal and a vertical routing track cross
+- The cell's width must be an odd multiple of the horizontal track pitch, and its height an odd multiple of the vertical track pitch
+
+#### Core Concepts in Static Timing Analysis
+
+Setup slack is calculated as the data-required time minus the data-arrival time, and it needs to stay at or above zero for the design to meet timing. A few sources of uncertainty get folded into this calculation:
+
+- OCV (On-Chip Variation) accounts for process, voltage, and temperature variation using derating factors
+- Clock uncertainty adds margin for jitter and skew along timing paths
+- CRPR (Clock Reconvergence Pessimism Removal) strips out artificial pessimism that appears when the launch and capture paths share common clock buffering
+
