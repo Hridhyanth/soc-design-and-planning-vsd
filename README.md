@@ -307,3 +307,6 @@ read_sdc /OpenLane/designs/picorv32a/src/my_base.sdc
 Setting all cloks as propagated clocks:
 set_propagated_clock [all_clocks]
 
+Check syntax of 'report_checks' command:
+help report_checks
+
