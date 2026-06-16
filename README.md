@@ -5,7 +5,9 @@ Code to Chip: An open-source RTL-to-GDSII journey with OpenLANE &amp; Sky130 PDK
 > Over two weeks, this workshop — organised by VSD (VLSI System Design) and NASSCOM — walked me through the entire RTL-to-GDSII flow
 > for digital VLSI SoC design.
 > This repo captures my daily lab work,
-> outputs, and the most important things I learned.  
+> outputs, and the most important things I learned.
+
+---
 
 ## Day 1 — Inception of Open-Source EDA, OpenLANE & Sky130 PDK
 
@@ -101,6 +103,7 @@ Flop Ratio = (No. of D Flip-Flops) / (Total No. of Cells)
            ≈ 0.1023  →  ~10.23%
 ```
 
+---
 ## Day 2 — Floorplanning and Introduction to Library Cells
 
 #### Chip Floorplanning — Core Area and Utilisation
@@ -155,6 +158,7 @@ run_placement
 
 Standard cells are legally placed .
 
+---
 ## Day 3 — Design and Characterisation of Library Cells using Magic & ngspice
 
 #### Characterising a Standard Cell with SPICE
@@ -223,13 +227,15 @@ From the waveform, measure rise time, fall time, and propagation delay values.
 
 80% of output = 2.64 V
 
-##### Fall transition time calculation
+#### Fall transition time calculation
 
 **Fall transition time** = **Time taken for output to fall to 20%** - **Time taken for output to fall to 80%**
 
 20% of output = 660 mV
 
 80% of output = 2.64 V
+
+---
 
 ## Day 4 — Pre-Layout Timing Analysis and Clock Tree Synthesis
 
@@ -312,6 +318,7 @@ help report_checks
 
 Exit to OpenLANE flow
 exit
+
 ---
 
 ## Day 5 — Final RTL to GDSII using TritonRoute & OpenSTA
