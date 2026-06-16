@@ -172,3 +172,61 @@ To properly characterise any standard cell, you start by writing a SPICE netlist
 
 Fabricating a chip on silicon follows roughly sixteen distinct masking steps, starting with substrate prep and ending in passivation:
 
+1. Choosing the starting substrate (typically lightly-doped p-type)
+2. Defining active regions through field oxidation and a nitride mask
+3. Forming the n-well and p-well via ion implantation
+4. Growing the gate oxide
+5. Depositing the polysilicon gate
+6. Implanting source/drain regions (including LDD and halo implants)
+7. Adding contacts and metal interconnect layers
+8. Applying the final passivation layer
+
+### Lab — Cloning and Characterising a Custom Inverter Cell
+
+#### Cloning the Standard Cell Repository
+
+```bash
+git clone https://github.com/nickson-jose/vsdstdcelldesign.git
+```
+
+```bash
+magic -T sky130A.tech sky130_inv.mag &
+```
+
+#### Extracting SPICE Netlist from Magic
+
+Inside the tkcon console:
+
+```tcl
+extract all
+ext2spice cthresh 0 rthresh 0
+ext2spice
+```
+
+#### Running ngspice Simulation
+
+```bash
+ngspice sky130_inv.spice
+```
+
+```ngspice
+plot y vs time a
+```
+
+From the waveform, measure rise time, fall time, and propagation delay values.
+
+##### Rise transition time calculation
+
+**Rise transition time** = **Time taken for output to rise to 80%** - **Time taken for output to rise to 20%**
+
+20% of output = 660 mV
+
+80% of output = 2.64 V
+
+##### Fall transition time calculation
+
+**Fall transition time** = **Time taken for output to fall to 20%** - **Time taken for output to fall to 80%**
+
+20% of output = 660 mV
+
+80% of output = 2.64 V
