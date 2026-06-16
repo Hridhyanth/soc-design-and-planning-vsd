@@ -248,3 +248,62 @@ Setup slack is calculated as the data-required time minus the data-arrival time,
 - Clock uncertainty adds margin for jitter and skew along timing paths
 - CRPR (Clock Reconvergence Pessimism Removal) strips out artificial pessimism that appears when the launch and capture paths share common clock buffering
 
+#### Building the Clock Tree
+
+Clock tree synthesis inserts a balanced network of buffers so the clock signal reaches every flop across the chip with minimal skew. Once CTS finishes, two things need rechecking: hold timing (since the new buffers add real delay) and setup timing (since the clock paths themselves have changed).
+
+### Lab — Custom Cell Integration and STA with OpenSTA
+
+#### Editing `config.tcl` to Include Custom Cell
+
+```tcl
+set ::env(LIB_SYNTH)      "$::env(OPENLANE_ROOT)/designs/picorv32a/src/sky130_fd_sc_hd__typical.lib"
+set ::env(LIB_FASTEST)    "$::env(OPENLANE_ROOT)/designs/picorv32a/src/sky130_fd_sc_hd__fast.lib"
+set ::env(LIB_SLOWEST)    "$::env(OPENLANE_ROOT)/designs/picorv32a/src/sky130_fd_sc_hd__slow.lib"
+set ::env(LIB_TYPICAL)    "$::env(OPENLANE_ROOT)/designs/picorv32a/src/sky130_fd_sc_hd__typical.lib"
+set ::env(EXTRA_LEFS)     [glob $::env(OPENLANE_ROOT)/designs/$::env(DESIGN_NAME)/src/*.lef]
+```
+
+#### Running OpenSTA (Pre-CTS Timing)
+Newly created pre_sta.conf for STA analysis in openlane directory
+
+```bash
+sta pre_sta.conf
+```
+
+#### Running CTS
+
+```tcl
+run_cts
+```
+
+#### Command to run OpenROAD tool
+openroad
+
+**Reading lef file:**
+read_lef /OpenLane/designs/picorv32a/runs/24-03_10-03/tmp/merged.nom.lef
+
+**Reading def file:**
+read_def /OpenLane/designs/picorv32a/runs/24-03_10-03/results/cts/picorv32a.def
+
+Creating an OpenROAD database to work with:
+write_db pico_cts.db
+
+Loading the created database in OpenROAD:
+read_db pico_cts.db
+
+Read netlist post CTS:
+read_verilog /OpenLane/designs/picorv32a/runs/24-03_10-03/results/synthesis/picorv32a.v
+
+Read library for design:
+read_liberty $::env(LIB_SYNTH_COMPLETE)
+
+Link design and library:
+link_design picorv32a
+
+Read in the custom sdc we created:
+read_sdc /OpenLane/designs/picorv32a/src/my_base.sdc
+
+Setting all cloks as propagated clocks:
+set_propagated_clock [all_clocks]
+
