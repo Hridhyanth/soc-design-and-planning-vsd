@@ -154,3 +154,21 @@ run_placement
 ```
 
 Standard cells are legally placed .
+
+## Day 3 — Design and Characterisation of Library Cells using Magic & ngspice
+
+#### Characterising a Standard Cell with SPICE
+
+To properly characterise any standard cell, you start by writing a SPICE netlist that captures its PMOS and NMOS transistors, their width-to-length ratios, the supply voltage, the input waveform driving the cell, and the capacitive load it's expected to drive.
+
+#### From the resulting simulation, three numbers matter most:
+
+- Rise  time — how long the output takes to climb from 20% to 80% of its swing
+- Fall time — how long it takes to drop from 80% down to 20%
+- Propagation delay — measured from the 50% point of the input to the 50% point of the output
+
+
+#### A Quick Look at the 16-Mask CMOS Process
+
+Fabricating a chip on silicon follows roughly sixteen distinct masking steps, starting with substrate prep and ending in passivation:
+
