@@ -107,15 +107,16 @@ Flop Ratio = (No. of D Flip-Flops) / (Total No. of Cells)
 
 Floorplanning is essentially the process of deciding how the chip's real estate gets allocated before anything is placed in detail. Two numbers anchor this decision:
 
-- Utilisation Factor = area taken up by the netlist ÷ total core area. Most designs aim for somewhere around 0.5–0.6, leaving enough breathing room for buffers, routing channels, and later optimization.
-- Aspect Ratio = core height ÷ core width. A value of 1 gives a perfect square; anything else stretches the core into a rectangle.
+- **Utilisation Factor** = **area taken up by the netlist** ÷ **total core area**. Most designs aim for somewhere around 0.5–0.6, leaving enough breathing room for buffers, routing channels, and later optimization.
+- **Aspect Ratio** = **core height** ÷ **core width**. A value of 1 gives a perfect square; anything else stretches the core into a rectangle.
 
-Pre-Placed Cells and Decoupling Capacitors
+#### Pre-Placed Cells and Decoupling Capacitors
 
 Certain blocks — memories, PLLs, and other complex IP — get locked into position manually before the automated placement tool ever runs. Their location is chosen by hand based on how they connect to the rest of the design and how power needs to reach them.
 
 Around these pre-placed blocks, designers add decoupling capacitors, which act like small local reservoirs of charge. They smooth out the voltage dips caused by nearby switching activity, keeping the power supply to these sensitive blocks clean and stable.
 
-Power Planning: Rings and Mesh
+#### Power Planning: Rings and Mesh
 
 A solid power distribution strategy combines two structures: power rings running around the core's perimeter, and a power mesh spreading across the whole chip. By running multiple VDD and VSS rails across several metal layers, every standard cell ends up close to a power tap — which keeps IR drop and electromigration risk under control.
+
