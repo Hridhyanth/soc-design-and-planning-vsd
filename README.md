@@ -2,41 +2,42 @@
 Code to Chip: An open-source RTL-to-GDSII journey with OpenLANE &amp; Sky130 PDK | VSD SoC Design and Planning Workshop
 # Digital VLSI SoC Design and Planning — RTL to GDSII
 
-> A 2-week hands-on workshop on complete RTL-to-GDSII flow for digital VLSI SoC design,
-> organised by **VSD (VLSI System Design)** in collaboration with **NASSCOM**.
-> This repository documents my learning, lab outputs, and key takeaways from each day.
+> Over two weeks, this workshop — organised by VSD (VLSI System Design) and NASSCOM — walked me through the entire RTL-to-GDSII flow
+> for digital VLSI SoC design.
+> This repo captures my daily lab work,
+> outputs, and the most important things I learned.  
 
 ## Day 1 — Inception of Open-Source EDA, OpenLANE & Sky130 PDK
 
 #### Understanding the Chip Package
 
-When we look at any embedded board and point to what we call the "chip," we're actually looking at the **package** — a protective casing around the actual silicon die. The real chip sits in the centre of this package and communicates with the outside world via **wire bonding** — tiny wires that connect the chip's pads to the package pins.
+What most people call "the chip" on a circuit board is actually its package — a protective shell wrapped around the real silicon underneath. The actual die sits inside, and it talks to the outside world through wire bonding: a set of extremely fine wires linking the die's pads to the metal pins of the package.
 
 #### Inside the Chip: Core, Pads, and Die
 
-Zooming into the chip itself, all signals between the chip and the external world pass through **pads** placed around the periphery. The region enclosed by the pads is called the **core** — this is where all the actual digital logic lives. Together, the core and the pads form the **die**, which is the fundamental unit of chip manufacturing.
-- **Foundry** — the place where chips are physically manufactured
-- **Foundry IPs** — IP blocks that require specialized process knowledge to implement (e.g., PLLs, SRAMs)
-- **Macros** — reusable, purely digital logic blocks
+Strip away the package and look at the silicon itself: every signal entering or leaving the chip passes through pads arranged around its edge. The space inside those pads — where the actual logic lives and does its work — is called the core. Core plus pads together make up the die, which is the basic physical unit that comes off a fabrication line.
+- **Foundry** —  fabrication facility that actually manufactures the silicon.
+- **Foundry IPs** — that demand deep, process-specific know-how to design correctly (e.g., PLLs, SRAMs)
+- **Macros** — are reusable digital logic blocks that don't carry that same process-level complexity.
 
 #### From Software to Silicon — The ISA Bridge
 
-A C program running on a chip goes through a multi-layer transformation:
+From Code to Hardware — Bridging Software and Silicon
 
-1. The C code is compiled into **RISC-V assembly** (or another ISA)
-2. The assembler converts it to **binary machine code (0s and 1s)**
-3. This binary pattern needs an **RTL implementation** of the ISA
-4. The RTL gets synthesized and goes through the full **PnR (Place and Route)** flow to become a physical layout
+A C program doesn't run on silicon directly — it passes through several layers of translation first:
 
-The system software stack (OS → Compiler → Assembler) acts as the bridge between what the programmer writes and what the hardware executes.
+1. A compiler turns the C source into assembly instructions targeting a specific instruction set, such as RISC-V.
+2. An assembler converts that assembly into raw machine code: the actual 0s and 1s the hardware understands.
+3. For that machine code to mean anything, the processor itself must have an RTL implementation of the instruction set baked into its logic.
+4. That RTL is then synthesized and carried through the full place-and-route flow until it becomes an actual physical layout.
+
+In short, the operating system, compiler, and assembler form the bridge connecting what a programmer writes to what the hardware ultimately executes.
 
 #### Why Open-Source EDA Matters
 
-For a fully open-source ASIC design flow, three things are needed:
+- A fully open-source ASIC design flow needs three pieces in place: openly available RTL source (drawn from places like opencores.org), a complete EDA toolchain covering synthesis, place-and-route, and verification, and PDK data — the process-specific design rules and standard cell libraries tied to a given fabrication node.
 
-1. **RTL Designs** (e.g., from opencores.org)
-2. **EDA Tools** (synthesis, P&R, verification)
-3. **PDK Data** (process-specific design rules, standard cell libraries)
+- For most of the industry's history, PDKs sat behind NDAs and proprietary licensing, putting real chip design out of reach for students and hobbyists. That changed in June 2020, when Google teamed up with SkyWater Technology to release Sky130 as the first fully open-source PDK — a genuine turning point for accessible VLSI design.
 
 Historically, PDKs were proprietary and distributed only under NDAs, making chip design inaccessible to most people. This changed in **June 2020**, when Google collaborated with SkyWater Technology to release the **Sky130 PDK** as the world's first open-source process design kit — a massive milestone for the VLSI community.
 
@@ -58,12 +59,13 @@ Historically, PDKs were proprietary and distributed only under NDAs, making chip
 
 ### Lab — Running OpenLANE for `picorv32a`
 
-### Lab — Running OpenLANE for `picorv32a`
 
 #### Setting Up and Invoking OpenLANE
 
 The very first step is to navigate to the OpenLANE working directory and launch the tool in **interactive mode**, which lets us run each stage step-by-step.
 
+- **Step 1** :
+  
 ```bash
 cd /home/vscode/Desktop/OpenLane
 make mount
@@ -71,6 +73,8 @@ make mount
 package require openlane 1.0.2
 ```
 
+- **Step 2** :
+  
 #### Preparing the Design
 
 Before running synthesis, we prepare the design to merge the cell LEF and technology LEF files, and set up the run directory.
@@ -79,12 +83,16 @@ Before running synthesis, we prepare the design to merge the cell LEF and techno
 prep -design picorv32a
 ```
 
+- **Step 3** :
+  
 #### Running Synthesis
 
 ```tcl
 run_synthesis
 ```
 
+- **Step 4** :
+  
 After synthesis completes, we can calculate the **flop ratio** — a useful sanity check:
 
 ```
