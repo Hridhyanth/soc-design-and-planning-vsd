@@ -124,3 +124,33 @@ A solid power distribution strategy combines two structures: power rings running
 
 I/O pins are arranged along the chip's outer boundary, and where exactly they sit isn't random — pins tied to logic buried deep in the core get positioned closer to that logic to keep wire lengths short. The strip of space between the core and the die edge (the I/O ring area) is deliberately walled off from automatic placement, reserved instead for things like pin buffers and ESD protection cells.
 
+### Lab — Floorplan and Placement
+
+#### Running Floorplan
+
+```tcl
+run_floorplan
+```
+
+After this completes, we can inspect the DEF file that was generated :
+
+```bash
+cd results/floorplan/
+less picorv32a.def
+```
+
+#### Viewing the Floorplan in Magic
+
+```bash
+magic -T /home/vsduser/Desktop/OpenLane/designs/picorv32a/sky130A/libs.tech/magic/sky130A.tech \
+      lef read ../../tmp/merged.nom.lef \
+      def read picorv32a.def &
+```
+
+#### Running Placement
+
+```tcl
+run_placement
+```
+
+Standard cells are legally placed .
