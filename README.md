@@ -310,3 +310,53 @@ set_propagated_clock [all_clocks]
 Check syntax of 'report_checks' command:
 help report_checks
 
+Exit to OpenLANE flow
+exit
+---
+
+## Day 5 — Final RTL to GDSII using TritonRoute & OpenSTA
+
+#### Routing in Two Passes
+
+Routing happens in two stages. Global routing (handled by FastRoute) splits the chip into regions and works out an approximate path for every net, keeping layer assignments and congestion in mind. Detailed routing (handled by TritonRoute) then takes those rough guides and turns them into exact wire segments, vias, and metal tracks — all while respecting the process's DRC rules.
+
+#### Extracting Parasitics and Final Timing Sign-off
+
+Once routing is complete, the actual resistance and capacitance of every wire gets extracted into a SPEF (Standard Parasitic Exchange Format) file. Those parasitics are back-annotated onto the netlist, and STA is run one more time to produce the final, sign-off-quality timing numbers.
+
+### Lab — Power Distribution, Routing
+
+#### Generating Power Distribution Network
+
+```tcl
+gen_pdn
+```
+#### Running Routing
+
+```tcl
+run_routing
+```
+
+Common violations to look out for:
+
+- *Min spacing violations* – two wires too close on the same layer
+- *Antenna violations* – long metal segments accumulating charge during etch (can damage gate oxide)
+  - Fix: insert antenna diodes or use jumper vias to a higher layer
+
+-----
+
+## Tools & Environment
+
+| Tool | Purpose |
+|---|---|
+| **OpenLANE** | RTL-to-GDSII automation flow |
+| **Yosys** | RTL synthesis |
+| **OpenROAD** | Floorplan, Placement, CTS, Routing |
+| **Magic** | Layout editor, DRC, LVS |
+| **OpenSTA** | Static Timing Analysis |
+| **ngspice** | SPICE simulation |
+| **TritonRoute** | Detailed routing |
+| **Netgen** | LVS (Layout vs Schematic) |
+| **Sky130 PDK** | SkyWater 130nm open-source PDK |
+
+---
