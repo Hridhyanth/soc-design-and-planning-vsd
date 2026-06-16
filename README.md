@@ -391,3 +391,35 @@ need clearing. Tracking down spacing and antenna violations was one of the most 
 moving on, forced me to understand why each step mattered rather than just how to perform it. It surfaced gaps in my understanding that I likely wouldn't have
 noticed otherwise, and it's a habit I plan to keep for future projects.
 
+---
+
+## Acknowledgements
+
+A huge thank you to *Kunal Ghosh* (Co-founder, VSD Corp. Pvt. Ltd.) and *Nickson P Jose* (Physical Design Engineer, Intel) for putting together such a well-structured and genuinely practical workshop. Running a real CPU from RTL to GDSII using nothing but open-source tools is something I didn’t expect to be possible — and yet here we are.
+- **Kunal Ghosh** — Co-founder, VSD (VLSI System Design)
+- **Nickson Jose** — for the `vsdstdcelldesign` repository used in Day 3 labs
+- **NASSCOM** — for facilitating this workshop program
+
+---
+
+## References
+
+1. **OpenLANE** — https://github.com/The-OpenROAD-Project/OpenLane.
+   This is the automated RTL-to-GDSII flow used throughout the workshop, tying together synthesis, 
+   floorplanning, placement, clock tree synthesis, routing, and GDSII generation into a single scriptable pipeline. 
+
+2. **Sky130 PDK** — https://github.com/google/skywater-pdk.
+   This is the open-source process design kit jointly released by Google and SkyWater Technology, providing the standard cell libraries and process design rules      that every layout and simulation in this workshop was built against.
+
+3. **Magic VLSI Layout Tool** — http://opencircuitdesign.com/magic/.
+   Magic was used for viewing and editing physical layouts, extracting SPICE netlists from custom cells, and checking designs against the Sky130 design rules         during the library characterization labs.
+
+4. **OpenSTA** — https://github.com/The-OpenROAD-Project/OpenSTA.
+   OpenSTA is the static timing analysis engine used both before and after clock tree synthesis to check setup and hold timing throughout the flow.
+
+6. **VSD (VLSI System Design)** — https://www.vlsisystemdesign.com/.
+   This is the organization that designed and delivered the workshop itself, and their site has additional course material and information about related programs.
+8. **OpenROAD Project** — https://theopenroad.readthedocs.io/.
+   The OpenROAD project underlies much of the automation inside OpenLANE, and its documentation was a useful reference for understanding what was happening at        each stage of the flow in more depth.
+
+---
