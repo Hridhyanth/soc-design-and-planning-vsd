@@ -1,4 +1,4 @@
-# soc-design-and-planning-new
+# soc-design-and-planning-vsd
 From RTL to Reality — physical design with OpenLANE &amp; Sky130 PDK | VSD SoC Design and Planning Workshop
 # Digital VLSI SoC Design and Planning — RTL to GDSII
 
