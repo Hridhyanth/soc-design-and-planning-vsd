@@ -1,39 +1,31 @@
-# soc-design-and-planning-vsd
-Code to Chip: An open-source RTL-to-GDSII journey with OpenLANE &amp; Sky130 PDK | VSD SoC Design and Planning Workshop
+# soc-design-and-planning-new
+From RTL to Reality — physical design with OpenLANE &amp; Sky130 PDK | VSD SoC Design and Planning Workshop
 # Digital VLSI SoC Design and Planning — RTL to GDSII
 
-> Over two weeks, this workshop — organised by VSD (VLSI System Design) and NASSCOM — walked me through the entire RTL-to-GDSII flow
-> for digital VLSI SoC design.
-> This repo captures my daily lab work,
-> outputs, and the most important things I learned.
+> Organised by VSD (VLSI System Design) in partnership with NASSCOM, this two-week workshop covered the full RTL-to-GDSII flow for digital VLSI SoC design from the ground up. What you'll find here is my personal documentation — lab runs, results, and the key ideas I took away from each day.
 
 ---
 
-## Day 1 — Inception of Open-Source EDA, OpenLANE & Sky130 PDK
+ ## Day 1 — Getting Started with OpenLANE, Sky130 PDK & Open-Source EDA
 
 #### Understanding the Chip Package
-
-What most people call "the chip" on a circuit board is actually its package — a protective shell wrapped around the real silicon underneath. The actual die sits inside, and it talks to the outside world through wire bonding: a set of extremely fine wires linking the die's pads to the metal pins of the package.
+- The component we casually point to as "the chip" on any circuit board is really just its outer packaging — a protective enclosure housing the actual silicon die within. The die itself communicates with the outside world through wire bonding, where hair-thin metallic wires bridge the die's bonding pads to the exposed pins of the package.
 
 #### Inside the Chip: Core, Pads, and Die
+Peel back the package and the silicon die reveals itself: all electrical signals travelling in or out of the chip must pass through pads lined along its periphery. Everything enclosed within those pads — the logic gates, flip-flops, and interconnects doing the real work — belongs to the core. The die, which is the unit that gets cut from a silicon wafer, is simply the core and pads taken together.
 
-Strip away the package and look at the silicon itself: every signal entering or leaving the chip passes through pads arranged around its edge. The space inside those pads — where the actual logic lives and does its work — is called the core. Core plus pads together make up the die, which is the basic physical unit that comes off a fabrication line.
-- **Foundry** —  fabrication facility that actually manufactures the silicon.
-- **Foundry IPs** — that demand deep, process-specific know-how to design correctly (e.g., PLLs, SRAMs)
-- **Macros** — are reusable digital logic blocks that don't carry that same process-level complexity.
+- Foundry — the manufacturing plant where silicon wafers are processed and chips are physically built.
+- Foundry IPs — specialized blocks like PLLs and SRAMs that require intimate knowledge of the fabrication process to implement correctly.
+- Macros — pre-designed, reusable blocks of purely digital logic that plug into a design without any process-level complexity.
 
 #### From Software to Silicon — The ISA Bridge
 
-From Code to Hardware — Bridging Software and Silicon
+Layers of Translation Between Software and Hardware
 
-A C program doesn't run on silicon directly — it passes through several layers of translation first:
-
-1. A compiler turns the C source into assembly instructions targeting a specific instruction set, such as RISC-V.
-2. An assembler converts that assembly into raw machine code: the actual 0s and 1s the hardware understands.
-3. For that machine code to mean anything, the processor itself must have an RTL implementation of the instruction set baked into its logic.
-4. That RTL is then synthesized and carried through the full place-and-route flow until it becomes an actual physical layout.
-
-In short, the operating system, compiler, and assembler form the bridge connecting what a programmer writes to what the hardware ultimately executes.
+- A compiler takes the original C source and converts it into architecture-specific assembly, targeting an instruction set like RISC-V that the target processor understands.
+- An assembler then reduces that human-readable assembly down to binary machine code — the raw sequence of 1s and 0s that the processor actually executes.
+- For those binary instructions to have any meaning in hardware, the processor must be built around an RTL description that faithfully implements the same instruction set the compiler targeted.
+- That RTL description is then pushed through synthesis and a full place-and-route flow, eventually becoming the physical transistor-level layout that gets fabricated onto silicon.
 
 #### Why Open-Source EDA Matters
 
@@ -42,25 +34,6 @@ In short, the operating system, compiler, and assembler form the bridge connecti
 - For most of the industry's history, PDKs sat behind NDAs and proprietary licensing, putting real chip design out of reach for students and hobbyists. That changed in June 2020, when Google teamed up with SkyWater Technology to release Sky130 as the first fully open-source PDK — a genuine turning point for accessible VLSI design.
 
 Historically, PDKs were proprietary and distributed only under NDAs, making chip design inaccessible to most people. This changed in **June 2020**, when Google collaborated with SkyWater Technology to release the **Sky130 PDK** as the world's first open-source process design kit — a massive milestone for the VLSI community.
-
-#### OpenLANE and the Automated RTL to GDSII Flow
-
-**OpenLANE** is an open-source flow built on top of multiple EDA tools that automates the journey from an RTL netlist all the way to the final GDSII layout file. It uses:
-
-| Stage | Tool(s) Used |
-|---|---|
-| Synthesis | Yosys, ABC |
-| Floorplan & PDN | OpenROAD |
-| Placement | OpenROAD |
-| CTS | TritonCTS |
-| Routing | FastRoute, TritonRoute |
-| SPEF Extraction | OpenRCX |
-| GDS Streaming | Magic, KLayout |
-| Timing Analysis | OpenSTA |
-| DRC & LVS | Magic, Netgen |
-
-### Lab — Running OpenLANE for `picorv32a`
-
 
 #### Setting Up and Invoking OpenLANE
 
@@ -102,30 +75,27 @@ Flop Ratio = (No. of D Flip-Flops) / (Total No. of Cells)
            = 1613 / 15762
            ≈ 0.1023  →  ~10.23%
 ```
-
 ---
+
 ## Day 2 — Floorplanning and Introduction to Library Cells
 
 #### Chip Floorplanning — Core Area and Utilisation
 
-Floorplanning is essentially the process of deciding how the chip's real estate gets allocated before anything is placed in detail. Two numbers anchor this decision:
+Floorplanning is where a design transitions from being a logical netlist to having a physical footprint — it's the stage where you decide how the chip's available area gets divided up and what goes where. Two fundamental metrics guide every floorplanning decision :
 
-- **Utilisation Factor** = **area taken up by the netlist** ÷ **total core area**. Most designs aim for somewhere around 0.5–0.6, leaving enough breathing room for buffers, routing channels, and later optimization.
-- **Aspect Ratio** = **core height** ÷ **core width**. A value of 1 gives a perfect square; anything else stretches the core into a rectangle.
+- Utilisation Factor = logic area consumed by the netlist ÷ total core area available. Keeping this between 0.5 and 0.6 is common practice — it preserves enough free space for clock buffers, filler cells, and the routing channels that connect everything together.
+
+- Aspect Ratio = core height ÷ core width. When this equals 1, the core is a perfect square; any other value produces a rectangular die, which may be driven by pin placement, packaging constraints, or just fitting the logic better.
 
 #### Pre-Placed Cells and Decoupling Capacitors
 
-Certain blocks — memories, PLLs, and other complex IP — get locked into position manually before the automated placement tool ever runs. Their location is chosen by hand based on how they connect to the rest of the design and how power needs to reach them.
-
-Around these pre-placed blocks, designers add decoupling capacitors, which act like small local reservoirs of charge. They smooth out the voltage dips caused by nearby switching activity, keeping the power supply to these sensitive blocks clean and stable.
+- Not every block gets handed over to the automated placement engine — some are too critical or too large to leave to an algorithm. Complex IP blocks like memories, PLLs, and analog circuits are placed manually at this stage, with their positions driven by connectivity, signal flow, and how the power network will reach them.
+- Once these blocks are locked down, decoupling capacitors are placed in the space immediately surrounding them. These capacitors act as on-chip charge reservoirs — when a block switches and briefly pulls extra current, the decap supplies it locally rather than letting the supply voltage droop. The result is a cleaner, more stable power rail right where it matters most.
 
 #### Power Planning: Rings and Mesh
-
-A solid power distribution strategy combines two structures: power rings running around the core's perimeter, and a power mesh spreading across the whole chip. By running multiple VDD and VSS rails across several metal layers, every standard cell ends up close to a power tap — which keeps IR drop and electromigration risk under control.
-
-#### Pin Placement and I/O Blockage
-
-I/O pins are arranged along the chip's outer boundary, and where exactly they sit isn't random — pins tied to logic buried deep in the core get positioned closer to that logic to keep wire lengths short. The strip of space between the core and the die edge (the I/O ring area) is deliberately walled off from automatic placement, reserved instead for things like pin buffers and ESD protection cells.
+- A reliable power network needs to deliver clean VDD and VSS to every cell on the chip, no matter where it sits. That means building two complementary structures: power rings that wrap around the core's perimeter to collect current from the I/O pads, and a power mesh that distributes it evenly across the interior through a grid of horizontal and vertical metal stripes on upper routing layers.
+ 
+- Spreading current delivery across multiple paths and metal layers keeps resistance low, which directly limits IR drop — the voltage loss that builds up along long, thin wires. It also reduces current density at any single point, pushing electromigration risk down to acceptable levels across the chip's expected lifetime.
 
 ### Lab — Floorplan and Placement
 
@@ -156,9 +126,8 @@ magic -T /home/vsduser/Desktop/OpenLane/designs/picorv32a/sky130A/libs.tech/magi
 run_placement
 ```
 
-Standard cells are legally placed .
-
 ---
+
 ## Day 3 — Design and Characterisation of Library Cells using Magic & ngspice
 
 #### Characterising a Standard Cell with SPICE
@@ -171,19 +140,15 @@ To properly characterise any standard cell, you start by writing a SPICE netlist
 - Fall time — how long it takes to drop from 80% down to 20%
 - Propagation delay — measured from the 50% point of the input to the 50% point of the output
 
-
 #### A Quick Look at the 16-Mask CMOS Process
 
-Fabricating a chip on silicon follows roughly sixteen distinct masking steps, starting with substrate prep and ending in passivation:
-
-1. Choosing the starting substrate (typically lightly-doped p-type)
-2. Defining active regions through field oxidation and a nitride mask
-3. Forming the n-well and p-well via ion implantation
-4. Growing the gate oxide
-5. Depositing the polysilicon gate
-6. Implanting source/drain regions (including LDD and halo implants)
-7. Adding contacts and metal interconnect layers
-8. Applying the final passivation layer
+1. Selecting the starting wafer — usually a lightly p-doped silicon substrate that serves as the foundation for all subsequent layers.
+2. Patterning the active regions using a combination of silicon nitride deposition and field oxidation, which electrically isolates adjacent devices from one another.
+3. Creating the n-well and p-well regions through ion implantation, establishing the separate tubs in which NMOS and PMOS transistors will be built.
+4. Growing a thin, high-quality gate oxide layer that will serve as the insulating barrier between the polysilicon gate and the channel below it.
+5. Depositing and patterning the polysilicon gate electrode, which controls carrier flow through the channel when a voltage is applied.
+6. Implanting the source and drain regions, including lightly-doped drain (LDD) extensions and halo implants that sharpen the electric field profile and reduce short-channel effects.
+7. Etching contact openings and depositing metal interconnect layers to wire up the transistors into a functioning circuitand Laying down the final passivation layer — a protective dielectric coating that seals the device against moisture, contamination, and mechanical damage.
 
 ### Lab — Cloning and Characterising a Custom Inverter Cell
 
@@ -217,23 +182,13 @@ ngspice sky130_inv.spice
 plot y vs time a
 ```
 
-From the waveform, measure rise time, fall time, and propagation delay values.
-
 ##### Rise transition time calculation
 
 **Rise transition time** = **Time taken for output to rise to 80%** - **Time taken for output to rise to 20%**
 
-20% of output = 660 mV
-
-80% of output = 2.64 V
-
 #### Fall transition time calculation
 
 **Fall transition time** = **Time taken for output to fall to 20%** - **Time taken for output to fall to 80%**
-
-20% of output = 660 mV
-
-80% of output = 2.64 V
 
 ---
 
@@ -352,22 +307,6 @@ Common violations to look out for:
 
 -----
 
-## Tools & Environment
-
-| Tool | Purpose |
-|---|---|
-| **OpenLANE** | RTL-to-GDSII automation flow |
-| **Yosys** | RTL synthesis |
-| **OpenROAD** | Floorplan, Placement, CTS, Routing |
-| **Magic** | Layout editor, DRC, LVS |
-| **OpenSTA** | Static Timing Analysis |
-| **ngspice** | SPICE simulation |
-| **TritonRoute** | Detailed routing |
-| **Netgen** | LVS (Layout vs Schematic) |
-| **Sky130 PDK** | SkyWater 130nm open-source PDK |
-
----
-
 ## Key Learnings
 
 - Open-source toolchains can genuinely replace commercial EDA flows. This workshop showed that an entirely open-source stack — OpenLANE, Magic, ngspice, OpenSTA,
@@ -426,7 +365,3 @@ A huge thank you to *Kunal Ghosh* (Co-founder, VSD Corp. Pvt. Ltd.) and *Nickson
 
 6. **VSD (VLSI System Design)** — https://www.vlsisystemdesign.com/.
    This is the organization that designed and delivered the workshop itself, and their site has additional course material and information about related programs.
-8. **OpenROAD Project** — https://theopenroad.readthedocs.io/.
-   The OpenROAD project underlies much of the automation inside OpenLANE, and its documentation was a useful reference for understanding what was happening at        each stage of the flow in more depth.
-
----
